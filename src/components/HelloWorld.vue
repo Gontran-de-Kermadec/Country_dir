@@ -3,6 +3,17 @@
 		<div class="country" v-if="country !== ''">
 			<p>{{ country }}</p>
 			<p class="test">Choses à écrire</p>
+			<div class="allnotes">
+				<transition-group name="slideup" class="allnotes_content">
+					<div
+						class="note_content"
+						v-for="(item, index) in existingNotes"
+						:key="'item' + index"
+					>
+						<p>{{ item.note }}</p>
+					</div>
+				</transition-group>
+			</div>
 		</div>
 		<transition name="fade">
 			<div class="note" v-if="activeCountry">
@@ -16,17 +27,30 @@
 					</button>
 					<button :id="toVisit" @click="toVisitCountry">À visiter</button>
 				</div>
-				<label for="long_note">Remarque</label>
-				<textarea name="long_note" id="long_note" cols="30" rows="10"></textarea
-				><br />
+				<div class="add_note">
+					<label for="long_note">Remarque</label><br />
+					<textarea
+						name="long_note"
+						id="long_note"
+						v-model="newNote"
+						@blur="addNewNote"
+					></textarea
+					><br />
+					<button @click="addNewNote">Ajouter</button>
+				</div>
+				<div class="allnotes">
+					<transition-group name="slideup" class="allnotes_content">
+						<div
+							class="note_content"
+							v-for="(item, index) in existingNotes"
+							:key="index"
+						>
+							<p>{{ item.note }}</p>
+						</div>
+					</transition-group>
+				</div>
 			</div>
 		</transition>
-		<!-- <div class="country" v-else-if="active === true">
-			<p>{{ activeCountry }}</p>
-			<p class="test">Choses à écrire</p>
-		</div> -->
-		<!-- <p @mouseover="mouseOver" @mouseleave="mouseOver">texte text</p>
-		<p v-if="active">suite texte</p> -->
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
 			xmlns:amcharts="http://amcharts.com/ammap"
@@ -1142,6 +1166,8 @@
 				visited: "false",
 				toVisit: "false",
 				countriesToVisit: [],
+				newNote: "",
+				existingNotes: [],
 			};
 		},
 		methods: {
@@ -1180,26 +1206,7 @@
 				console.log(e);
 				const tl = gsap.timeline();
 				tl.to(".country", { x: -300, duration: 1 });
-				tl.to(".country", { x: 0, width: 1000, duration: 1, zIndex: 100 });
-
-				// const timeLine = gsap.timeline();
-				// timeLine.to(".note", { x: -200, duration: 1 });
-				// gsap.fromTo(
-				// 	".country",
-				// 	{
-				// 		x: -200,
-				// 		duration: 1,
-				// 		//ease: "bounce.in",
-				// 		//zIndex: 100,
-				// 	},
-				// 	{
-				// 		x: 0,
-				// 		width: 1000,
-				// 		duration: 2,
-				// 		ease: "power3.in",
-				// 		zIndex: 100,
-				// 	}
-				// );
+				//tl.to(".country", { x: 0, width: 1000, duration: 1, zIndex: 100 });
 			},
 			mouseOver: function() {
 				this.active = !this.active;
@@ -1218,12 +1225,6 @@
 					this.visited = "true";
 					oneCountry.classList.add("visited");
 				}
-
-				//this.visited = !this.visited;
-				//this.visit = "true";
-				//const tl = gsap.timeline();
-				//gsap.to(".true", { backgroundColor: "red", duration: 0.5 });
-				//tl.to(".country", { x: 0, width: 1000, duration: 1, zIndex: 100 });
 			},
 			toVisitCountry() {
 				let oneCountry = document.getElementById(countryId);
@@ -1237,6 +1238,13 @@
 					oneCountry.classList.add("toVisit");
 				}
 				//this.toVisit = !this.toVisit;
+			},
+			addNewNote() {
+				if (this.newNote !== "") {
+					this.existingNotes.push({ note: this.newNote });
+					console.log(this.existingNotes);
+					this.newNote = "";
+				}
 			},
 		},
 		mounted() {
@@ -1264,9 +1272,19 @@
 		right: 0;
 		/* top: 50%; */
 		background: lightblue;
-		width: 600px;
+		width: 500px;
 		height: 100vh;
 		z-index: 100;
+		text-align: center;
+		padding: 0 20px;
+	}
+	/* .add_note {
+		border: solid;
+	} */
+	.add_note textarea {
+		margin: 0 30px;
+		width: 300px;
+		height: 50px;
 	}
 	#countryName {
 		text-align: center;
@@ -1295,10 +1313,6 @@
 		left: 50%;
 		top: 50%;
 		transform: translate(-50%, -50%);
-		/* top: 0;
-		left: 0;
-		bottom: 0;
-		right: 0; */
 		width: 1010px;
 		height: 650px;
 	}
@@ -1327,5 +1341,58 @@
 	}
 	.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
 		opacity: 0;
+	}
+	/*contenu liste note*/
+	.allnotes {
+		overflow-y: scroll;
+		max-height: 400px;
+		margin: 0 20px;
+	}
+	.allnotes::-webkit-scrollbar {
+		/* background-color: red; */
+		width: 6px;
+	}
+	.allnotes::-webkit-scrollbar-thumb {
+		background-color: transparent;
+		border-radius: 5px;
+	}
+	.allnotes:hover::-webkit-scrollbar-thumb {
+		background-color: #ebf5ee;
+	}
+	.allnotes_content {
+		display: flex;
+		flex-direction: column-reverse;
+	}
+	.note_content {
+		font-size: 1.5rem;
+		padding: 0 20px;
+	}
+	.note_content p {
+		/* border: solid; */
+		padding: 10px 5px;
+		background: #ebf5ee;
+		border-radius: 5px;
+		margin: 10px 0;
+	}
+	.slideup-enter-active,
+	.slideup-leave-active {
+		/* transition: opacity 0.5s;
+		transition: transform 0.5s; */
+		animation: slidedown 0.7s ease-out;
+	}
+	/* .slideup-enter, .slideup-leave-to  {
+		opacity: 0;
+		transform: translateY(-100px);
+
+	} */
+	@keyframes slidedown {
+		0% {
+			opacity: 0;
+			transform: translateY(-300px);
+		}
+		100% {
+			opacity: 1;
+			transform: translateY(0);
+		}
 	}
 </style>
