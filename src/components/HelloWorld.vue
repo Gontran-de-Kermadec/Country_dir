@@ -1151,6 +1151,9 @@
 <script>
 	//import Country from "./Country.vue";
 	let countryId;
+	let storageSelectedCountry = JSON.parse(
+		localStorage.getItem("visitedCountry")
+	);
 	import { gsap } from "gsap";
 	export default {
 		name: "HelloWorld",
@@ -1166,6 +1169,7 @@
 				visited: "false",
 				toVisit: "false",
 				countriesToVisit: [],
+				//visitedCountries: [],
 				newNote: "",
 				existingNotes: [],
 			};
@@ -1190,7 +1194,7 @@
 			selectCountry(e) {
 				console.log("click");
 				console.log(e.path[0].attributes[1].value);
-				countryId = e.path[0].attributes[1].value;
+				countryId = e.path[0].attributes[1].value; // chemin pour obtenir l'id du pays
 				let oneCountry = document.getElementById(countryId);
 				if (oneCountry.classList.contains("visited")) {
 					this.visited = "true";
@@ -1203,10 +1207,8 @@
 					this.toVisit = "false";
 				}
 				this.activeCountry = e.path[0].attributes[2].value; //chemin pour acceder à la valeur du nom de pays
-				console.log(e);
 				const tl = gsap.timeline();
 				tl.to(".country", { x: -300, duration: 1 });
-				//tl.to(".country", { x: 0, width: 1000, duration: 1, zIndex: 100 });
 			},
 			mouseOver: function() {
 				this.active = !this.active;
@@ -1216,14 +1218,18 @@
 			},
 			visitedCountry() {
 				let oneCountry = document.getElementById(countryId);
+				let oneCountryId = oneCountry.id;
 				console.log(oneCountry.classList.contains("visited"));
 				this.toVisit = "false";
 				if (this.visited === "true") {
 					this.visited = "false";
 					oneCountry.classList.remove("visited");
+					this.removeVisitedCountry(oneCountryId);
 				} else if (this.visited === "false") {
 					this.visited = "true";
 					oneCountry.classList.add("visited");
+					oneCountry.classList.remove("toVisit");
+					this.storeVisitedCountry(oneCountryId, this.visited);
 				}
 			},
 			toVisitCountry() {
@@ -1236,6 +1242,7 @@
 				} else if (this.toVisit === "false") {
 					this.toVisit = "true";
 					oneCountry.classList.add("toVisit");
+					oneCountry.classList.remove("visited");
 				}
 				//this.toVisit = !this.toVisit;
 			},
@@ -1246,9 +1253,73 @@
 					this.newNote = "";
 				}
 			},
+			storeVisitedCountry(countryId, visitedStatus) {
+				console.log(countryId);
+				console.log(visitedStatus);
+				//let visitedCountryData = { country: countryId, status: visitedStatus };
+				if (storageSelectedCountry === null) {
+					storageSelectedCountry = [];
+					//storageSelectedCountry.push(visitedCountryData);
+					storageSelectedCountry.push(countryId);
+					//console.log(storageSelectedCountry.country);
+				} else if (storageSelectedCountry !== null) {
+					//storageSelectedCountry.push(countryId);
+					if (storageSelectedCountry.includes(countryId)) {
+						console.log(countryId);
+					} else {
+						storageSelectedCountry.push(countryId);
+						console.log(storageSelectedCountry);
+					}
+					// let findCountry = storageSelectedCountry.find(
+					// 	(item) => item.country == countryId
+					// );
+					// if (findCountry === undefined) {
+					// 	storageSelectedCountry.push(visitedCountryData);
+					// 	console.log(storageSelectedCountry);
+					// } else {
+					// 	console.log(storageSelectedCountry);
+					// }
+				}
+				localStorage.setItem(
+					"visitedCountry",
+					JSON.stringify(storageSelectedCountry)
+				);
+			},
+			removeVisitedCountry(countryId) {
+				// let findCountry = storageSelectedCountry.find(
+				// 	(item) => item.country == countryId
+				// );
+				// let getIndex = storageSelectedCountry.indexOf(findCountry);
+				let getIndex = storageSelectedCountry.indexOf(countryId);
+				console.log(getIndex);
+				storageSelectedCountry.splice(getIndex, 1);
+				localStorage.setItem(
+					"visitedCountry",
+					JSON.stringify(storageSelectedCountry)
+				);
+			},
+			checkVisitedCountries() {
+				const allLands = document.querySelectorAll(".land");
+				console.log(allLands[0]);
+				console.log(storageSelectedCountry);
+				return allLands.filter((land) => land.id == "AU");
+				// allLands.forEach((land) => {
+				// 	console.log(typeof land.id);
+				// 	let compare = storageSelectedCountry.find((item) => {
+				// 		console.log(item == land.id);
+				// 		item == land.id;
+				// 	});
+				// 	console.log(compare);
+				// 	//return item.country;
+				// 	//this.visited = item.status;
+				// });
+				//let filtre = allLands.filter((land) => land.id == "AU");
+				//console.log(filtre);
+			},
 		},
 		mounted() {
 			this.getTitle();
+			//console.log(this.checkVisitedCountries());
 		},
 	};
 </script>
