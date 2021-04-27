@@ -1,6 +1,7 @@
 <template>
 	<div class="hello">
-		<div class="country" v-if="country !== ''">
+		<Indication />
+		<!-- <div class="country" v-if="country !== ''">
 			<p>{{ country }}</p>
 			<p class="test">Choses à écrire</p>
 			<div class="allnotes">
@@ -14,7 +15,7 @@
 					</div>
 				</transition-group>
 			</div>
-		</div>
+		</div> -->
 		<transition name="fade">
 			<div class="note" v-if="activeCountry">
 				<button @click="closeNoteSection">
@@ -1149,22 +1150,25 @@
 </template>
 
 <script>
-	//import Country from "./Country.vue";
+	import Indication from "./Indication.vue";
 	let countryId;
 	let storageSelectedCountry = JSON.parse(
 		localStorage.getItem("visitedCountry")
 	);
+	let notesStored = JSON.parse(localStorage.getItem("countryNotes"));
+	//let countryNotes = [];
 	import { gsap } from "gsap";
+	import { mapState } from "vuex";
 	export default {
 		name: "HelloWorld",
-		// components: {
-		// 	Country,
-		// },
+		components: {
+			Indication,
+		},
 		data() {
 			return {
 				hover: false,
 				active: false,
-				country: "",
+				//country: "",
 				activeCountry: "",
 				visited: "false",
 				toVisit: "false",
@@ -1174,6 +1178,9 @@
 				existingNotes: [],
 			};
 		},
+		computed: {
+			...mapState(["country"]),
+		},
 		methods: {
 			getTitle() {
 				const countries = document.querySelectorAll(".land");
@@ -1181,15 +1188,17 @@
 				countries.forEach((element) => {
 					element.addEventListener("mouseover", () => {
 						//console.log(element.getAttribute("title"));
+						//console.log(element.getAttribute("id"));
 						//this.country = element.getAttribute("title");
 						this.$store.commit("GET_TITLE", element.getAttribute("title"));
+						this.$store.commit("HOVER_ID", element.getAttribute("id"));
 						//console.log(this.country);
 					});
 					element.addEventListener("mouseleave", () => {
 						//console.log(element.getAttribute("title"));
 						//this.country = "";
 						this.$store.commit("GET_TITLE", "");
-						console.log(this.country);
+						//console.log(this.country);
 					});
 				});
 			},
@@ -1209,6 +1218,7 @@
 					this.toVisit = "false";
 				}
 				this.activeCountry = e.path[0].attributes[2].value; //chemin pour acceder à la valeur du nom de pays
+				this.$store.commit("SELECTED_COUNTRY", e.path[0].attributes[2].value);
 				const tl = gsap.timeline();
 				tl.to(".country", { x: -300, duration: 1 });
 			},
@@ -1250,7 +1260,15 @@
 			},
 			addNewNote() {
 				if (this.newNote !== "") {
+					console.log(typeof notesStored);
 					this.existingNotes.push({ note: this.newNote });
+					//this.$store.commit("EXISTING_NOTES", { note: this.newNote });
+					this.$store.commit("EXISTING_NOTES", this.newNote);
+
+					//countryNotes.push({ countryId, note: this.newNote });
+					notesStored.push({ countryId, note: this.newNote });
+					//localStorage.setItem("countryNotes", JSON.stringify(countryNotes));
+					localStorage.setItem("countryNotes", JSON.stringify(notesStored));
 					console.log(this.existingNotes);
 					this.newNote = "";
 				}
@@ -1332,14 +1350,13 @@
 		overflow: hidden;
 		height: 100vh;
 	}
-	.country {
+	/* .country {
 		position: absolute;
-		/* top: 50%; */
 		background: lightblue;
 		width: 300px;
 		height: 100vh;
 		z-index: 100;
-	}
+	} */
 	.note {
 		position: absolute;
 		right: 0;
