@@ -1181,12 +1181,14 @@
 				countries.forEach((element) => {
 					element.addEventListener("mouseover", () => {
 						//console.log(element.getAttribute("title"));
-						this.country = element.getAttribute("title");
-						console.log(this.country);
+						//this.country = element.getAttribute("title");
+						this.$store.commit("GET_TITLE", element.getAttribute("title"));
+						//console.log(this.country);
 					});
 					element.addEventListener("mouseleave", () => {
 						//console.log(element.getAttribute("title"));
-						this.country = "";
+						//this.country = "";
+						this.$store.commit("GET_TITLE", "");
 						console.log(this.country);
 					});
 				});
