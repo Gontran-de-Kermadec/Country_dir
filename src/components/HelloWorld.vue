@@ -1,22 +1,8 @@
 <template>
 	<div class="hello">
 		<Indication />
-		<!-- <div class="country" v-if="country !== ''">
-			<p>{{ country }}</p>
-			<p class="test">Choses à écrire</p>
-			<div class="allnotes">
-				<transition-group name="slideup" class="allnotes_content">
-					<div
-						class="note_content"
-						v-for="(item, index) in existingNotes"
-						:key="'item' + index"
-					>
-						<p>{{ item.note }}</p>
-					</div>
-				</transition-group>
-			</div>
-		</div> -->
-		<transition name="fade">
+		<Country />
+		<!-- <transition name="fade">
 			<div class="note" v-if="activeCountry">
 				<button @click="closeNoteSection">
 					Fermer
@@ -46,12 +32,12 @@
 							v-for="(item, index) in existingNotes"
 							:key="index"
 						>
-							<p>{{ item.note }}</p>
+							<p v-if="item.id === activeCountry">{{ item.note }}</p>
 						</div>
 					</transition-group>
 				</div>
 			</div>
-		</transition>
+		</transition> -->
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
 			xmlns:amcharts="http://amcharts.com/ammap"
@@ -1151,6 +1137,7 @@
 
 <script>
 	import Indication from "./Indication.vue";
+	import Country from "./Country.vue";
 	let countryId;
 	let storageSelectedCountry = JSON.parse(
 		localStorage.getItem("visitedCountry")
@@ -1163,6 +1150,7 @@
 		name: "HelloWorld",
 		components: {
 			Indication,
+			Country,
 		},
 		data() {
 			return {
@@ -1170,7 +1158,7 @@
 				active: false,
 				//country: "",
 				activeCountry: "",
-				visited: "false",
+				//visited: "false",
 				toVisit: "false",
 				countriesToVisit: [],
 				//visitedCountries: [],
@@ -1179,7 +1167,7 @@
 			};
 		},
 		computed: {
-			...mapState(["country"]),
+			...mapState(["country", "notes", "countryHoverId", "visited"]),
 		},
 		methods: {
 			getTitle() {
@@ -1204,71 +1192,56 @@
 			},
 			selectCountry(e) {
 				console.log("click");
-				console.log(e.path[0].attributes[1].value);
 				countryId = e.path[0].attributes[1].value; // chemin pour obtenir l'id du pays
+				this.$store.commit("COUNTRY_ID", countryId);
 				let oneCountry = document.getElementById(countryId);
 				if (oneCountry.classList.contains("visited")) {
-					this.visited = "true";
+					this.$store.commit("VISITED", "true");
+					//this.visited = "true";
 				} else {
-					this.visited = "false";
+					this.$store.commit("VISITED", "false");
+					//this.visited = "false";
 				}
 				if (oneCountry.classList.contains("toVisit")) {
-					this.toVisit = "true";
+					this.$store.commit("TO_VISIT", "true");
+					//this.toVisit = "true";
 				} else {
-					this.toVisit = "false";
+					this.$store.commit("TO_VISIT", "false");
+					//this.toVisit = "false";
 				}
 				this.activeCountry = e.path[0].attributes[2].value; //chemin pour acceder à la valeur du nom de pays
 				this.$store.commit("SELECTED_COUNTRY", e.path[0].attributes[2].value);
+				//this.$store.commit("ACTIVE_COUNTRY", e.path[0].attributes[2].value);
 				const tl = gsap.timeline();
 				tl.to(".country", { x: -300, duration: 1 });
 			},
 			mouseOver: function() {
 				this.active = !this.active;
 			},
-			closeNoteSection() {
-				this.activeCountry = "";
-			},
-			visitedCountry() {
-				let oneCountry = document.getElementById(countryId);
-				let oneCountryId = oneCountry.id;
-				console.log(oneCountry.classList.contains("visited"));
-				this.toVisit = "false";
-				if (this.visited === "true") {
-					this.visited = "false";
-					oneCountry.classList.remove("visited");
-					this.removeVisitedCountry(oneCountryId);
-				} else if (this.visited === "false") {
-					this.visited = "true";
-					oneCountry.classList.add("visited");
-					oneCountry.classList.remove("toVisit");
-					this.storeVisitedCountry(oneCountryId, this.visited);
-				}
-			},
-			toVisitCountry() {
-				let oneCountry = document.getElementById(countryId);
-				console.log(oneCountry.classList.contains("toVisit"));
-				this.visited = "false";
-				if (this.toVisit === "true") {
-					this.toVisit = "false";
-					oneCountry.classList.remove("toVisit");
-				} else if (this.toVisit === "false") {
-					this.toVisit = "true";
-					oneCountry.classList.add("toVisit");
-					oneCountry.classList.remove("visited");
-				}
-				//this.toVisit = !this.toVisit;
-			},
 			addNewNote() {
 				if (this.newNote !== "") {
 					console.log(typeof notesStored);
-					this.existingNotes.push({ note: this.newNote });
+					this.existingNotes.push({
+						id: this.activeCountry,
+						note: this.newNote,
+					});
 					//this.$store.commit("EXISTING_NOTES", { note: this.newNote });
-					this.$store.commit("EXISTING_NOTES", this.newNote);
+					let payload = { countryName: this.activeCountry, note: this.newNote };
+					//this.$store.commit("EXISTING_NOTES", this.newNote);
+					this.$store.commit("EXISTING_NOTES", payload);
 
 					//countryNotes.push({ countryId, note: this.newNote });
-					notesStored.push({ countryId, note: this.newNote });
-					//localStorage.setItem("countryNotes", JSON.stringify(countryNotes));
-					localStorage.setItem("countryNotes", JSON.stringify(notesStored));
+					// if (notesStored === null) {
+					// 	localStorage.setItem(
+					// 		"countryNotes",
+					// 		JSON.stringify({ countryId, note: this.newNote })
+					// 	);
+					// } else {
+					// 	notesStored.push({ countryId, note: this.newNote });
+					// 	//localStorage.setItem("countryNotes", JSON.stringify(countryNotes));
+					// 	localStorage.setItem("countryNotes", JSON.stringify(notesStored));
+					// }
+
 					console.log(this.existingNotes);
 					this.newNote = "";
 				}
@@ -1323,18 +1296,6 @@
 				console.log(allLands[0]);
 				console.log(storageSelectedCountry);
 				return allLands.filter((land) => land.id == "AU");
-				// allLands.forEach((land) => {
-				// 	console.log(typeof land.id);
-				// 	let compare = storageSelectedCountry.find((item) => {
-				// 		console.log(item == land.id);
-				// 		item == land.id;
-				// 	});
-				// 	console.log(compare);
-				// 	//return item.country;
-				// 	//this.visited = item.status;
-				// });
-				//let filtre = allLands.filter((land) => land.id == "AU");
-				//console.log(filtre);
 			},
 		},
 		mounted() {
@@ -1350,39 +1311,6 @@
 		overflow: hidden;
 		height: 100vh;
 	}
-	/* .country {
-		position: absolute;
-		background: lightblue;
-		width: 300px;
-		height: 100vh;
-		z-index: 100;
-	} */
-	.note {
-		position: absolute;
-		right: 0;
-		/* top: 50%; */
-		background: lightblue;
-		width: 500px;
-		height: 100vh;
-		z-index: 100;
-		text-align: center;
-		padding: 0 20px;
-	}
-	/* .add_note {
-		border: solid;
-	} */
-	.add_note textarea {
-		margin: 0 30px;
-		width: 300px;
-		height: 50px;
-	}
-	#countryName {
-		text-align: center;
-		text-transform: uppercase;
-		font-weight: bold;
-		font-size: 2rem;
-	}
-	/*section note button*/
 	.isVisited {
 		text-align: center;
 	}
@@ -1456,33 +1384,5 @@
 	.note_content {
 		font-size: 1.5rem;
 		padding: 0 20px;
-	}
-	.note_content p {
-		/* border: solid; */
-		padding: 10px 5px;
-		background: #ebf5ee;
-		border-radius: 5px;
-		margin: 10px 0;
-	}
-	.slideup-enter-active,
-	.slideup-leave-active {
-		/* transition: opacity 0.5s;
-		transition: transform 0.5s; */
-		animation: slidedown 0.7s ease-out;
-	}
-	/* .slideup-enter, .slideup-leave-to  {
-		opacity: 0;
-		transform: translateY(-100px);
-
-	} */
-	@keyframes slidedown {
-		0% {
-			opacity: 0;
-			transform: translateY(-300px);
-		}
-		100% {
-			opacity: 1;
-			transform: translateY(0);
-		}
 	}
 </style>

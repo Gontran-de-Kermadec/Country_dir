@@ -3,22 +3,20 @@
 		<p class="country_title">{{ country }}</p>
 		<p class="test">Choses à écrire</p>
 		<div class="allnotes">
-			<div
+			<!-- <div
 				class="note_content"
 				v-for="(item, index) in notes"
 				:key="'item' + index"
 			>
 				<p v-if="item.countryId === countryHoverId">{{ item.note }}</p>
+			</div> -->
+			<div
+				class="note_content"
+				v-for="(item, index) in existingNotes"
+				:key="'item' + index"
+			>
+				<p v-if="item.countryName === activeCountry">{{ item.note }}</p>
 			</div>
-			<!-- <transition-group name="slideup" class="allnotes_content">
-					<div
-						class="note_content"
-						v-for="(item, index) in existingNotes"
-						:key="'item' + index"
-					>
-						<p>{{ item.note }}</p>
-					</div>
-				</transition-group> -->
 		</div>
 	</div>
 </template>
@@ -28,7 +26,14 @@
 	export default {
 		name: "Indication",
 		computed: {
-			...mapState(["country", "existingNotes", "notes", "countryHoverId"]),
+			...mapState([
+				"country",
+				"existingNotes",
+				"notes",
+				"countryHoverId",
+				"activeCountry",
+				"countryId",
+			]),
 		},
 	};
 </script>

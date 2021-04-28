@@ -10,8 +10,14 @@ export default new Vuex.Store({
         country: "",
         activeCountry: "",
         countryHoverId: "",
+        //newNote: "",
         existingNotes: [],
-        notes: notesStored
+        notes: notesStored,
+        visited: "false",
+        toVisit: "false",
+        hover: false,
+		active: false,
+        countryId: ""
     },
     mutations: {
         GET_TITLE(state, payload) {
@@ -26,10 +32,26 @@ export default new Vuex.Store({
             state.countryHoverId = payload;
             console.log(state.countryHoverId);
         },
+        // NEW_NOTE(state, payload) {
+        //     state.newNote = payload;
+        //     console.log(state.newNote);
+        // },
         EXISTING_NOTES(state, payload) {
             state.existingNotes.push(payload);
             //state.existingNotes = payload;
             console.log(state.existingNotes);
+        },
+        COUNTRY_ID(state, payload) {
+            state.countryId = payload;
+            console.log(state.countryId);
+        },
+        VISITED(state, payload) {
+            state.visited = payload;
+            console.log(state.visited);
+        },
+        TO_VISIT(state, payload) {
+            state.toVisit = payload;
+            console.log(state.toVisit);
         }
     },
     actions: {
