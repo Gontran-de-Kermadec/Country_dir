@@ -37,7 +37,7 @@
 							v-for="(item, index) in existingNotes"
 							:key="index"
 						>
-							<p v-if="item.id === activeCountry">{{ item.note }}</p>
+							<p v-if="item.countryName === activeCountry">{{ item.note }}</p>
 						</div>
 					</transition-group>
 				</div>
@@ -98,10 +98,10 @@
 			addNewNote() {
 				if (this.newNote !== "") {
 					//console.log(typeof notesStored);
-					this.existingNotes.push({
-						id: this.activeCountry,
-						note: this.newNote,
-					});
+					// this.existingNotes.push({
+					// 	id: this.activeCountry,
+					// 	note: this.newNote,
+					// });
 					//this.$store.commit("EXISTING_NOTES", { note: this.newNote });
 					let payload = { countryName: this.activeCountry, note: this.newNote };
 					//this.$store.commit("EXISTING_NOTES", this.newNote);
@@ -119,7 +119,7 @@
 					// 	localStorage.setItem("countryNotes", JSON.stringify(notesStored));
 					// }
 
-					console.log(this.existingNotes);
+					//console.log(this.existingNotes);
 					this.newNote = "";
 					//this.$store.commit("NEW_NOTE", "");
 				}
@@ -249,6 +249,30 @@
 		background: #ebf5ee;
 		border-radius: 5px;
 		margin: 10px 0;
+	}
+	.allnotes {
+		overflow-y: scroll;
+		max-height: 400px;
+		margin: 0 20px;
+	}
+	.allnotes::-webkit-scrollbar {
+		/* background-color: red; */
+		width: 6px;
+	}
+	.allnotes::-webkit-scrollbar-thumb {
+		background-color: transparent;
+		border-radius: 5px;
+	}
+	.allnotes:hover::-webkit-scrollbar-thumb {
+		background-color: #ebf5ee;
+	}
+	.allnotes_content {
+		display: flex;
+		flex-direction: column-reverse;
+	}
+	.note_content {
+		font-size: 1.5rem;
+		padding: 0 20px;
 	}
 	.isVisited {
 		text-align: center;

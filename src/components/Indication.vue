@@ -15,7 +15,7 @@
 				v-for="(item, index) in existingNotes"
 				:key="'item' + index"
 			>
-				<p v-if="item.countryName === activeCountry">{{ item.note }}</p>
+				<p v-if="item.countryName === country">{{ item.note }}</p>
 			</div>
 		</div>
 	</div>
@@ -41,7 +41,6 @@
 <style>
 	.country {
 		position: absolute;
-		/* top: 50%; */
 		background: lightblue;
 		width: 250px;
 		height: 100vh;
@@ -57,7 +56,6 @@
 		padding: 0 20px;
 	}
 	.note_content p {
-		/* border: solid; */
 		padding: 10px 5px;
 		background: #ebf5ee;
 		border-radius: 5px;
