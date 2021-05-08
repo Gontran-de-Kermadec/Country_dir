@@ -1,7 +1,7 @@
 <template>
 	<div class="hello">
 		<Indication />
-		<Country />
+		<Country id="country" />
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
 			xmlns:amcharts="http://amcharts.com/ammap"
@@ -1112,6 +1112,7 @@
 	import Indication from "./Indication.vue";
 	import Country from "./Country.vue";
 	let countryId;
+	let visitedCountries = JSON.parse(localStorage.getItem("visitedCountry"));
 	import { gsap } from "gsap";
 	import { mapState } from "vuex";
 	export default {
@@ -1146,7 +1147,6 @@
 				});
 			},
 			selectCountry(e) {
-				console.log("click");
 				countryId = e.path[0].attributes[1].value; // chemin pour obtenir l'id du pays
 				this.$store.commit("COUNTRY_ID", countryId);
 				let oneCountry = document.getElementById(countryId);
@@ -1162,15 +1162,36 @@
 				}
 				this.activeCountry = e.path[0].attributes[2].value; //chemin pour acceder à la valeur du nom de pays
 				this.$store.commit("SELECTED_COUNTRY", e.path[0].attributes[2].value);
-				const tl = gsap.timeline();
-				tl.to(".country", { x: -300, duration: 1 });
+				// const tl = gsap.timeline();
+				// tl.to(".country", { x: -300, duration: 1 });
+				gsap.fromTo(
+					"#country",
+					{ opacity: 0, x: 550 },
+					{ opacity: 1, x: 0, zIndex: 100, duration: 0.7 }
+				);
 			},
 			mouseOver: function() {
 				this.active = !this.active;
 			},
+			checkVisitedCountries() {
+				const countries = document.querySelectorAll(".land");
+				for (let i = 0; i < countries.length; i++) {
+					//console.log(countries[i].getAttribute("id"));
+					let allCountriesId = countries[i].getAttribute("id");
+					for (let j = 0; j < visitedCountries.length; j++) {
+						//console.log(visitedCountries[j]);
+						if (allCountriesId.includes(visitedCountries[j])) {
+							console.log(countries[i]);
+							//this.$store.commit("VISITED", "true");
+							countries[i].classList.add("visited");
+						}
+					}
+				}
+			},
 		},
 		mounted() {
 			this.getTitle();
+			this.checkVisitedCountries();
 		},
 	};
 </script>
@@ -1215,13 +1236,19 @@
 		stroke-width: 0.5;
 	}
 	.land:hover {
-		fill: red;
+		fill: rgb(138, 142, 147);
 	}
 	.visited {
-		fill: green;
+		fill: #87d68d;
+	}
+	.visited:hover {
+		fill: #2f8936;
 	}
 	.toVisit {
-		fill: yellow;
+		fill: #bc8aa1;
+	}
+	.toVisit:hover {
+		fill: #824a63;
 	}
 	.fade-enter-active,
 	.fade-leave-active {
