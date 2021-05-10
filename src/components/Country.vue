@@ -6,40 +6,38 @@
 					Fermer
 				</button>
 				<p id="countryName">{{ activeCountry }}</p>
-				<div class="isVisited">
-					<button :id="visited" @click="visitedCountry">
+				<div class="visit">
+					<button :id="visited" class="isVisited" @click="visitedCountry">
 						Visité
 					</button>
-					<button :id="toVisit" @click="toVisitCountry">À visiter</button>
+					<button :id="toVisit" class="isToVisit" @click="toVisitCountry">
+						À visiter
+					</button>
 				</div>
 				<div class="add_note">
 					<label for="long_note">Remarque</label><br />
-					<textarea
-						name="long_note"
-						id="long_note"
-						v-model="newNote"
-						@blur="addNewNote"
-					></textarea
+					<textarea name="long_note" id="long_note" v-model="newNote"></textarea
 					><br />
 					<button @click="addNewNote">Ajouter</button>
 				</div>
 				<div class="allnotes">
-					<transition-group name="slideup" class="allnotes_content">
-						<!-- <div
+					<!-- <transition-group name="slideup" class="allnotes_content"> -->
+					<!-- <div
 							class="note_content"
 							v-for="(item, index) in notes"
 							:key="index"
 						>
 							<p v-if="item.countryId === countryHoverId">{{ item.note }}</p>
 						</div> -->
-						<div
-							class="note_content"
-							v-for="(item, index) in existingNotes"
-							:key="index"
-						>
-							<p v-if="item.countryName === activeCountry">{{ item.note }}</p>
-						</div>
-					</transition-group>
+					<div
+						class="note_content"
+						v-for="(item, index) in existingNotes"
+						:key="index"
+					>
+						<p v-if="item.countryName === activeCountry">{{ item.note }}</p>
+						<button class="delete" @click="deleteNote">X</button>
+					</div>
+					<!-- </transition-group> -->
 				</div>
 			</div>
 		</transition>
@@ -50,7 +48,8 @@
 	let storageSelectedCountry = JSON.parse(
 		localStorage.getItem("visitedCountry")
 	);
-	//import { gsap } from "gsap";
+	let toVisitCountries = JSON.parse(localStorage.getItem("toVisitCountries"));
+	import { gsap } from "gsap";
 	import { mapState } from "vuex";
 	export default {
 		name: "Country",
@@ -69,79 +68,28 @@
 			]),
 		},
 		methods: {
-			// animFadeIn() {
-			// 	const tl = gsap.timeline();
-			// 	tl.to(".container", { x: -300, duration: 1 });
-			// 	//tl.to(".country", { x: 0, width: 1000, duration: 1, zIndex: 100 });
-			// },
-			// 	selectCountry() {
-			// 	console.log("click");
-			// 	//countryId = e.path[0].attributes[1].value; // chemin pour obtenir l'id du pays
-			// 	//this.$store.commit("COUNTRY_ID", countryId);
-			// 	let oneCountry = document.getElementById(countryId);
-			// 	if (oneCountry.classList.contains("visited")) {
-			// 		this.visited = "true";
-			// 	} else {
-			// 		this.visited = "false";
-			// 	}
-			// 	if (oneCountry.classList.contains("toVisit")) {
-			// 		this.toVisit = "true";
-			// 	} else {
-			// 		this.toVisit = "false";
-			// 	}
-			// 	this.activeCountry = e.path[0].attributes[2].value; //chemin pour acceder à la valeur du nom de pays
-			// 	this.$store.commit("SELECTED_COUNTRY", e.path[0].attributes[2].value);
-			// 	//this.$store.commit("ACTIVE_COUNTRY", e.path[0].attributes[2].value);
-			// 	const tl = gsap.timeline();
-			// 	tl.to(".country", { x: -300, duration: 1 });
-			// },
 			addNewNote() {
 				if (this.newNote !== "") {
-					//console.log(typeof notesStored);
-					// this.existingNotes.push({
-					// 	id: this.activeCountry,
-					// 	note: this.newNote,
-					// });
-					//this.$store.commit("EXISTING_NOTES", { note: this.newNote });
 					let payload = { countryName: this.activeCountry, note: this.newNote };
-					//this.$store.commit("EXISTING_NOTES", this.newNote);
 					this.$store.commit("EXISTING_NOTES", payload);
-
-					//countryNotes.push({ countryId, note: this.newNote });
-					// if (notesStored === null) {
-					// 	localStorage.setItem(
-					// 		"countryNotes",
-					// 		JSON.stringify({ countryId, note: this.newNote })
-					// 	);
-					// } else {
-					// 	notesStored.push({ countryId, note: this.newNote });
-					// 	//localStorage.setItem("countryNotes", JSON.stringify(countryNotes));
-					// 	localStorage.setItem("countryNotes", JSON.stringify(notesStored));
-					// }
-
-					//console.log(this.existingNotes);
 					this.newNote = "";
-					//this.$store.commit("NEW_NOTE", "");
 				}
 			},
 			closeNoteSection() {
 				this.$store.commit("SELECTED_COUNTRY", "");
-				//this.activeCountry = "";
+				gsap.to(".note", { opacity: 0, x: 550, duration: 0.7 });
 			},
 			visitedCountry() {
 				let oneCountry = document.getElementById(this.countryId);
 				let oneCountryId = oneCountry.id;
 				console.log(oneCountry.classList.contains("visited"));
-				//this.toVisit = "false";
 				this.$store.commit("TO_VISIT", "false");
 				if (this.visited === "true") {
-					//this.visited = "false";
 					this.$store.commit("VISITED", "false");
 					oneCountry.classList.remove("visited");
 					this.removeVisitedCountry(oneCountryId);
 				} else if (this.visited === "false") {
 					this.$store.commit("VISITED", "true");
-					//this.visited = "true";
 					oneCountry.classList.add("visited");
 					oneCountry.classList.remove("toVisit");
 					this.storeVisitedCountry(oneCountryId, this.visited);
@@ -150,44 +98,31 @@
 			toVisitCountry() {
 				let oneCountry = document.getElementById(this.countryId);
 				console.log(oneCountry.classList.contains("toVisit"));
-				//this.visited = "false";
+				let oneCountryId = oneCountry.id;
 				this.$store.commit("VISITED", "false");
 				if (this.toVisit === "true") {
-					//this.toVisit = "false";
 					this.$store.commit("TO_VISIT", "false");
 					oneCountry.classList.remove("toVisit");
+					this.removetoVisitCountries(oneCountryId);
 				} else if (this.toVisit === "false") {
-					//this.toVisit = "true";
 					this.$store.commit("TO_VISIT", "true");
 					oneCountry.classList.add("toVisit");
 					oneCountry.classList.remove("visited");
+					this.storeToVisitCountries(oneCountryId);
 				}
-				//this.toVisit = !this.toVisit;
 			},
 			storeVisitedCountry(countryId, visitedStatus) {
 				console.log(countryId);
 				console.log(visitedStatus);
-				//let visitedCountryData = { country: countryId, status: visitedStatus };
 				if (storageSelectedCountry === null) {
 					storageSelectedCountry = [];
-					//storageSelectedCountry.push(visitedCountryData);
 					storageSelectedCountry.push(countryId);
-					//console.log(storageSelectedCountry.country);
 				} else if (storageSelectedCountry !== null) {
-					//storageSelectedCountry.push(countryId);
-					if (storageSelectedCountry.includes(countryId)) {
-						console.log(countryId);
-					} else {
-						storageSelectedCountry.push(countryId);
-						console.log(storageSelectedCountry);
-					}
-					// let findCountry = storageSelectedCountry.find(
-					// 	(item) => item.country == countryId
-					// );
-					// if (findCountry === undefined) {
-					// 	storageSelectedCountry.push(visitedCountryData);
-					// 	console.log(storageSelectedCountry);
+					storageSelectedCountry.push(countryId);
+					// if (storageSelectedCountry.includes(countryId)) {
+					// 	console.log(countryId);
 					// } else {
+					// 	storageSelectedCountry.push(countryId);
 					// 	console.log(storageSelectedCountry);
 					// }
 				}
@@ -205,6 +140,30 @@
 					JSON.stringify(storageSelectedCountry)
 				);
 			},
+			storeToVisitCountries(countryId) {
+				console.log(countryId);
+				if (toVisitCountries === null) {
+					toVisitCountries = [];
+					toVisitCountries.push(countryId);
+				} else if (toVisitCountries !== null) {
+					toVisitCountries.push(countryId);
+				}
+				localStorage.setItem(
+					"toVisitCountries",
+					JSON.stringify(toVisitCountries)
+				);
+			},
+			removetoVisitCountries(countryId) {
+				let getIndex = storageSelectedCountry.indexOf(countryId);
+				toVisitCountries.splice(getIndex, 1);
+				localStorage.setItem(
+					"toVisitCountries",
+					JSON.stringify(toVisitCountries)
+				);
+			},
+			deleteNote(e) {
+				this.$store.commit("DELETE_NOTE", e.path[1].children[0].innerText);
+			},
 		},
 	};
 </script>
@@ -221,17 +180,21 @@
 		font-weight: bold;
 		font-size: 2rem;
 	}
-	.fade-enter-active,
+	/* .fade-enter-active, */
 	.fade-leave-active {
-		transition: opacity 0.5s;
+		/* transition: 0.5s; */
+		animation: slideOut 0.7s ease-out;
 	}
-	.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
-		opacity: 0;
+	/* .fade-enter,
+	.fade-leave-to {
+		animation: slideIn 0.5s;
+	} */
+	.container {
+		position: relative;
 	}
 	.note {
 		position: absolute;
 		right: 0;
-		/* top: 50%; */
 		background: lightblue;
 		width: 500px;
 		height: 100vh;
@@ -240,15 +203,33 @@
 		padding: 0 20px;
 	}
 	.note_content {
+		position: relative;
 		font-size: 1.5rem;
 		padding: 0 20px;
+		animation: slidedown 0.7s ease-out;
 	}
 	.note_content p {
-		/* border: solid; */
 		padding: 10px 5px;
 		background: #ebf5ee;
 		border-radius: 5px;
 		margin: 10px 0;
+	}
+	.note_content button {
+		all: unset;
+		position: absolute;
+		right: 30px;
+		top: 50%;
+		transform: translateY(-50%);
+		font-size: 1rem;
+		cursor: pointer;
+		background-color: lightblue;
+		padding: 5px;
+		border-radius: 5px;
+		opacity: 0;
+		transition: 0.3s;
+	}
+	.note_content:hover button {
+		opacity: 1;
 	}
 	.allnotes {
 		overflow-y: scroll;
@@ -256,7 +237,6 @@
 		margin: 0 20px;
 	}
 	.allnotes::-webkit-scrollbar {
-		/* background-color: red; */
 		width: 6px;
 	}
 	.allnotes::-webkit-scrollbar-thumb {
@@ -270,23 +250,19 @@
 		display: flex;
 		flex-direction: column-reverse;
 	}
-	.note_content {
-		font-size: 1.5rem;
-		padding: 0 20px;
-	}
-	.isVisited {
+	.visit {
 		text-align: center;
 	}
-	.isVisited button {
+	.visit button {
 		all: unset;
-		border: solid;
+		border: solid 1px;
 		padding: 10px 20px;
 		margin: 10px;
 		cursor: pointer;
 	}
-	.isVisited #true {
+	.visit #true {
 		transition: 0.5s;
-		background: tomato;
+		background: #7ca6f3;
 	}
 	.slideup-enter-active,
 	.slideup-leave-active {
@@ -300,6 +276,16 @@
 		100% {
 			opacity: 1;
 			transform: translateY(0);
+		}
+	}
+	@keyframes slideOut {
+		0% {
+			opacity: 1;
+			transform: translateX(0px);
+		}
+		100% {
+			opacity: 0;
+			transform: translateX(550px);
 		}
 	}
 </style>

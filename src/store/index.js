@@ -4,7 +4,6 @@ import Vuex from 'vuex'
 Vue.use(Vuex);
 
 let notesStored = JSON.parse(localStorage.getItem("countryNotes"));
-
 export default new Vuex.Store({
     state: {
         country: "",
@@ -32,13 +31,15 @@ export default new Vuex.Store({
             state.countryHoverId = payload;
             console.log(state.countryHoverId);
         },
-        // NEW_NOTE(state, payload) {
-        //     state.newNote = payload;
-        //     console.log(state.newNote);
-        // },
         EXISTING_NOTES(state, payload) {
             state.existingNotes.push(payload);
-            //state.existingNotes = payload;
+            console.log(state.existingNotes);
+        },
+        DELETE_NOTE(state, payload) {
+            console.log(state.existingNotes);
+            let result = state.existingNotes.findIndex(element => element.note === payload)
+            console.log(result);
+            state.existingNotes.splice(result, 1)
             console.log(state.existingNotes);
         },
         COUNTRY_ID(state, payload) {
@@ -55,7 +56,6 @@ export default new Vuex.Store({
         }
     },
     actions: {
-
     }
 });
 

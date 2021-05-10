@@ -1,7 +1,7 @@
 <template>
 	<div class="country" v-if="country !== ''">
 		<p class="country_title">{{ country }}</p>
-		<p class="test">Choses à écrire</p>
+		<p class="test">Notes</p>
 		<div class="allnotes">
 			<!-- <div
 				class="note_content"
