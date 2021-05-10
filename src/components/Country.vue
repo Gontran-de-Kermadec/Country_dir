@@ -48,6 +48,7 @@
 	let storageSelectedCountry = JSON.parse(
 		localStorage.getItem("visitedCountry")
 	);
+	let toVisitCountries = JSON.parse(localStorage.getItem("toVisitCountries"));
 	import { gsap } from "gsap";
 	import { mapState } from "vuex";
 	export default {
@@ -76,23 +77,19 @@
 			},
 			closeNoteSection() {
 				this.$store.commit("SELECTED_COUNTRY", "");
-				//this.activeCountry = "";
 				gsap.to(".note", { opacity: 0, x: 550, duration: 0.7 });
 			},
 			visitedCountry() {
 				let oneCountry = document.getElementById(this.countryId);
 				let oneCountryId = oneCountry.id;
 				console.log(oneCountry.classList.contains("visited"));
-				//this.toVisit = "false";
 				this.$store.commit("TO_VISIT", "false");
 				if (this.visited === "true") {
-					//this.visited = "false";
 					this.$store.commit("VISITED", "false");
 					oneCountry.classList.remove("visited");
 					this.removeVisitedCountry(oneCountryId);
 				} else if (this.visited === "false") {
 					this.$store.commit("VISITED", "true");
-					//this.visited = "true";
 					oneCountry.classList.add("visited");
 					oneCountry.classList.remove("toVisit");
 					this.storeVisitedCountry(oneCountryId, this.visited);
@@ -101,16 +98,17 @@
 			toVisitCountry() {
 				let oneCountry = document.getElementById(this.countryId);
 				console.log(oneCountry.classList.contains("toVisit"));
-				//this.visited = "false";
+				let oneCountryId = oneCountry.id;
 				this.$store.commit("VISITED", "false");
 				if (this.toVisit === "true") {
-					//this.toVisit = "false";
 					this.$store.commit("TO_VISIT", "false");
 					oneCountry.classList.remove("toVisit");
+					this.removetoVisitCountries(oneCountryId);
 				} else if (this.toVisit === "false") {
 					this.$store.commit("TO_VISIT", "true");
 					oneCountry.classList.add("toVisit");
 					oneCountry.classList.remove("visited");
+					this.storeToVisitCountries(oneCountryId);
 				}
 			},
 			storeVisitedCountry(countryId, visitedStatus) {
@@ -120,12 +118,13 @@
 					storageSelectedCountry = [];
 					storageSelectedCountry.push(countryId);
 				} else if (storageSelectedCountry !== null) {
-					if (storageSelectedCountry.includes(countryId)) {
-						console.log(countryId);
-					} else {
-						storageSelectedCountry.push(countryId);
-						console.log(storageSelectedCountry);
-					}
+					storageSelectedCountry.push(countryId);
+					// if (storageSelectedCountry.includes(countryId)) {
+					// 	console.log(countryId);
+					// } else {
+					// 	storageSelectedCountry.push(countryId);
+					// 	console.log(storageSelectedCountry);
+					// }
 				}
 				localStorage.setItem(
 					"visitedCountry",
@@ -141,8 +140,28 @@
 					JSON.stringify(storageSelectedCountry)
 				);
 			},
+			storeToVisitCountries(countryId) {
+				console.log(countryId);
+				if (toVisitCountries === null) {
+					toVisitCountries = [];
+					toVisitCountries.push(countryId);
+				} else if (toVisitCountries !== null) {
+					toVisitCountries.push(countryId);
+				}
+				localStorage.setItem(
+					"toVisitCountries",
+					JSON.stringify(toVisitCountries)
+				);
+			},
+			removetoVisitCountries(countryId) {
+				let getIndex = storageSelectedCountry.indexOf(countryId);
+				toVisitCountries.splice(getIndex, 1);
+				localStorage.setItem(
+					"toVisitCountries",
+					JSON.stringify(toVisitCountries)
+				);
+			},
 			deleteNote(e) {
-				//console.log(typeof e.path[1].children[0].innerText);
 				this.$store.commit("DELETE_NOTE", e.path[1].children[0].innerText);
 			},
 		},
